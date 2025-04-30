@@ -11,23 +11,32 @@ export const CreateEvent = () => {
    const [events, setEvents] = useState<Event[]>([]);
    const [eventName, setEventName] = useState("");
 
-   const API_BASE = "https://ticketing-app-bu5y.onrender.com/api/events";
 
    useEffect(() => {
       fetchEvents();
    }, []);
 
+   // const fetchEvents = async () => {
+   //    try {
+   //       //  const res = await fetch(API_BASE);
+   //       const res = await baseAPI.get("/events");
+   //       const data = res.data;
+   //       setEvents(data);
+   //    } catch (err) {
+   //       console.error("Error fetching events:", err);
+   //    }
+   // };
+
    const fetchEvents = async () => {
       try {
-         //  const res = await fetch(API_BASE);
          const res = await baseAPI.get("/events");
-         const data = res.data;
+         if (!res.status) throw new Error("Failed to fetch events");
+         const data = await res.data;
          setEvents(data);
       } catch (err) {
          console.error("Error fetching events:", err);
       }
    };
-
    const handleAddEvent = async (e: React.FormEvent) => {
       e.preventDefault();
       try {
@@ -57,11 +66,9 @@ export const CreateEvent = () => {
 
    const handleDelete = async (id: string) => {
       try {
-         const res = await fetch(`${API_BASE}/${id}`, {
-            method: "DELETE",
-         });
+         const res = await baseAPI.delete(`/events/${id}`);
 
-         if (!res.ok) throw new Error("Failed to delete event");
+         if (!res.data) throw new Error("Failed to delete event");
 
          setEvents((prev) => prev.filter((event) => event.id !== id));
       } catch (err) {
