@@ -4,7 +4,11 @@ A React-based frontend for a ticketing platform that allows users to browse even
 
 ## 🌐 Live Demo
 
-[🔗 View Live App](https://your-live-app-link.com) *(optional)*
+[🔗 View Live App](https://facal.me) *(optional)*
+
+## 🖼️ Screenshot
+
+![Ticketing App Screenshot](./public/ss-qr-client.png)
 
 ---
 
