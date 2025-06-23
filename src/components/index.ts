@@ -1,0 +1,2 @@
+export { QRLogo } from "./QRLogo";
+

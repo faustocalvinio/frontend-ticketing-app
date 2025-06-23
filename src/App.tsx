@@ -14,10 +14,9 @@ export const App = () => {
          {/* <Checkout/> */}
          <BrowserRouter>
             <Routes>
-               {/* <Route path="/" element={<GenerateQR />} /> */}
+               <Route path="/" element={<CheckoutPage />} />
                <Route path="/events" element={<CreateEvent />} />
                <Route path="/validate-qr" element={<ValidateQR />} />
-               <Route path="/" element={<CheckoutPage />} />
                <Route path="*" element={<div>404 Not Found</div>} />
             </Routes>
          </BrowserRouter>

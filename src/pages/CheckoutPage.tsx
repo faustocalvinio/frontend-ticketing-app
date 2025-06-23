@@ -2,6 +2,7 @@ import { PayPalButtons } from "@paypal/react-paypal-js";
 import { useEffect, useState } from "react";
 // import { useParams } from "react-router";
 import baseAPI from "../api/baseAPI";
+import { QRLogo } from "../components";
 
 interface EventOption {
    name: string;
@@ -11,16 +12,14 @@ interface EventOption {
 }
 
 export const CheckoutPage = () => {
-   // const { id } = useParams();
    const [events, setEvents] = useState<EventOption[]>([]);
    const [email, setEmail] = useState("");
    const [eventId, setEventId] = useState("");
    const [area, setArea] = useState("General");
-   // const [sendEmail, setSendEmail] = useState(true);
+   const [successMessage, setSuccessMessage] = useState(false);
    const [ticketId, setTicketId] = useState<string | null>(null);
    useEffect(() => {
       document.title = "Genera tu QR";
-      // console.log("ID de la orden:", id);
       fetchEvents();
    }, []);
 
@@ -33,16 +32,17 @@ export const CheckoutPage = () => {
          const res = await baseAPI.get("/events");
          if (!res.status) throw new Error("Failed to fetch events");
          const data = (await res.data) as EventOption[];
-         // console.log(data);
          setEvents(data);
       } catch (err) {
          console.error("Error fetching events:", err);
       }
    };
    return (
-      <main className="flex flex-col text-2xl items-center justify-center h-screen bg-gray-100 p-4">
-         {/* <h1 className="text-2xl font-bold mb-4">Orden {id}</h1> */}
-         <h1 className="text-2xl font-semibold mb-6">Genera tu QR</h1>
+      <main className="flex flex-col text-2xl items-center justify-center min-h-screen bg-gray-100 p-4">
+         <div className="flex flex-col items-center gap-2 py-4">
+            <QRLogo />
+            {/* <h1 className="text-2xl font-semibold mb-6">Genera tu Ticket QR</h1> */}
+         </div>
          <form
             onSubmit={handleSubmit}
             className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 w-full max-w-md"
@@ -58,6 +58,7 @@ export const CheckoutPage = () => {
                   type="email"
                   id="email"
                   required
+                  placeholder="Enter your email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
@@ -69,7 +70,7 @@ export const CheckoutPage = () => {
                   htmlFor="eventId"
                   className="block text-gray-700 text-sm font-bold mb-2"
                >
-                  Evento:
+                  Event:
                </label>
                <select
                   id="eventId"
@@ -78,7 +79,7 @@ export const CheckoutPage = () => {
                   onChange={(e) => setEventId(e.target.value)}
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                >
-                  <option value="">Selecciona un evento</option>
+                  <option value="">Pick an event</option>
                   {events.map((event) => (
                      <option key={event.id} value={event.id}>
                         {event.name}
@@ -92,7 +93,7 @@ export const CheckoutPage = () => {
                   htmlFor="area"
                   className="block text-gray-700 text-sm font-bold mb-2"
                >
-                  Área:
+                  Area:
                </label>
                <select
                   id="area"
@@ -124,6 +125,19 @@ export const CheckoutPage = () => {
                Generar Ticket PDF
             </button> */}
          </form>
+         {successMessage && (
+            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4 w-full max-w-md">
+               <strong className="font-bold">¡Success!</strong>
+               <br />
+               <span className="block sm:inline">
+                 Your ticket has been generated successfully and sent to <strong>{email}</strong>
+                 </span>
+               <br />
+               <span className="block sm:inline">
+                 You can download it from the link that will appear after the payment is completed.
+               </span>
+            </div>
+         )}
          <div className="w-full max-w-md">
             <PayPalButtons
                createOrder={async (_data, actions) => {
@@ -152,10 +166,12 @@ export const CheckoutPage = () => {
                }}
                onApprove={(_data, actions) => {
                   return actions.order!.capture().then(async (details) => {
-                     // alert(`Transacción completada por asdas`);
+                     setSuccessMessage(true);
                      console.log("Detalles de la transacción:", details);
                      fetch(
-                        `${import.meta.env.VITE_API_HOST}/payments/paypal/checkout/${ticketId}`,
+                        `${
+                           import.meta.env.VITE_API_HOST
+                        }/payments/paypal/checkout/${ticketId}`,
                         {
                            method: "POST",
                         }
@@ -163,12 +179,12 @@ export const CheckoutPage = () => {
                         response.blob().then((blob) => {
                            const url = window.URL.createObjectURL(blob);
                            window.open(url);
-                           // const a = document.createElement("a");
-                           // a.href = url;
-                           // a.download = "ticket.pdf"; // Nombre del archivo
-                           // document.body.appendChild(a);
-                           // a.click();
-                           // a.remove();
+                           const a = document.createElement("a");
+                           a.href = url;
+                           a.download = "ticket.pdf"; // Nombre del archivo
+                           document.body.appendChild(a);
+                           a.click();
+                           a.remove();
                         });
                      });
 
