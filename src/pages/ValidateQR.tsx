@@ -9,7 +9,6 @@ export const ValidateQR = () => {
       const html5QrCode = new Html5Qrcode("reader");
       const baseURL =
          "https://ticketing-app-bu5y.onrender.com/api/tickets/validate/";
-      console.log(readerRef.current);
       const onScanSuccess = (qrCodeMessage: string) => {
          console.log("✅ QR leído:", qrCodeMessage);
          html5QrCode.stop().then(() => {
